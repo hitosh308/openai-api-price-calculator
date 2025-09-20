@@ -176,6 +176,9 @@ $hasCost = $totalUsd > 0;
             OpenAI が提供する各種モデルの料金を日本円で試算できます。<br>
             モデルごとの単価は <code>data/pricing.json</code> で管理されており、最新の価格に合わせて自由に編集できます。
         </p>
+        <p class="small-text">
+            料金設定の更新は <a href="admin.php">管理画面</a> から行えます（簡易パスワード認証が必要です）。
+        </p>
     </header>
 
     <?php if ($error !== null): ?>
