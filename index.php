@@ -159,6 +159,26 @@ $totalJpy = $totalUsd * $usdToJpy;
 $perRequestUsd = ($requests > 0) ? $totalUsd / $requests : 0.0;
 $perRequestJpy = $perRequestUsd * $usdToJpy;
 $hasCost = $totalUsd > 0;
+
+$modelCount = count($models);
+$pricingItemCount = 0;
+$categorySet = [];
+foreach ($models as $modelInfo) {
+    if (!empty($modelInfo['category'])) {
+        $categorySet[(string) $modelInfo['category']] = true;
+    }
+
+    $items = is_array($modelInfo['pricing'] ?? null) ? $modelInfo['pricing'] : [];
+    $pricingItemCount += count($items);
+}
+$categoryCount = count($categorySet);
+
+$lastUpdatedText = trim((string) ($meta['last_updated'] ?? ''));
+$exchangeSourceText = trim((string) ($meta['exchange_rate_source'] ?? ''));
+
+$selectedModelName = $selectedModel ? (string) ($selectedModel['name'] ?? $selectedModelId) : '';
+$selectedModelCategory = $selectedModel ? (string) ($selectedModel['category'] ?? '') : '';
+$selectedModelDescription = $selectedModel ? (string) ($selectedModel['description'] ?? '') : '';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -168,25 +188,127 @@ $hasCost = $totalUsd > 0;
     <title>OpenAI API 料金計算ツール</title>
     <link rel="stylesheet" href="assets/styles.css">
 </head>
-<body>
-<main>
-    <header>
-        <h1>OpenAI API 料金計算ツール</h1>
-        <p>
-            OpenAI が提供する各種モデルの料金を日本円で試算できます。<br>
-            モデルごとの単価は <code>data/pricing.json</code> で管理されており、最新の価格に合わせて自由に編集できます。
-        </p>
-        <p class="small-text">
-            料金設定の更新は <a href="admin.php">管理画面</a> から行えます（簡易パスワード認証が必要です）。
-        </p>
+<body class="calculator">
+<div class="page-gradient"></div>
+<div class="page-glow page-glow-1"></div>
+<div class="page-glow page-glow-2"></div>
+<main class="app-shell">
+    <header class="hero">
+        <div class="hero-content">
+            <span class="hero-kicker">AI コストを瞬時にビジュアライズ</span>
+            <h1>OpenAI API 料金計算ツール</h1>
+            <p>
+                モデルごとの料金テーブルと為替レートを掛け合わせて、米ドルと日本円での概算料金をリアルタイムに算出します。
+                JSON を更新すると即座に最新の価格へ反映され、管理画面から安全に編集できます。
+            </p>
+
+            <ul class="hero-highlights">
+                <li>
+                    <span class="hero-icon">⚡</span>
+                    <div>
+                        <strong>瞬時に概算を取得</strong>
+                        <span>入力したトークン量に合わせて USD / JPY の料金をその場で試算。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="hero-icon">🧠</span>
+                    <div>
+                        <strong><?= number_format($modelCount) ?> 種類のモデル</strong>
+                        <span>カテゴリ <?= $categoryCount > 0 ? number_format($categoryCount) : '—' ?> 種類、料金項目 <?= number_format($pricingItemCount) ?> 件をカバー。</span>
+                    </div>
+                </li>
+                <li>
+                    <span class="hero-icon">🔄</span>
+                    <div>
+                        <strong>為替レートも柔軟に設定</strong>
+                        <span>管理画面や JSON で調整でき、最新の相場感に対応。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="hero-actions">
+                <a class="hero-button primary" href="#calculator">料金計算を始める</a>
+                <a class="hero-button ghost" href="admin.php">料金設定を編集</a>
+            </div>
+
+            <div class="hero-insights">
+                <div class="insight">
+                    <span class="label">登録モデル</span>
+                    <strong><?= number_format($modelCount) ?></strong>
+                    <small><?= $categoryCount > 0 ? 'カテゴリ ' . number_format($categoryCount) . ' 種類' : 'カテゴリ情報は未設定' ?></small>
+                </div>
+                <div class="insight">
+                    <span class="label">料金項目</span>
+                    <strong><?= number_format($pricingItemCount) ?></strong>
+                    <small>JSON を編集すると即座に反映</small>
+                </div>
+                <div class="insight">
+                    <span class="label">為替レート</span>
+                    <strong>1 USD = <?= formatCurrency($usdToJpy, 'JPY') ?></strong>
+                    <?php if ($lastUpdatedText !== ''): ?>
+                        <small>設定日 <?= h($lastUpdatedText) ?></small>
+                    <?php elseif ($exchangeSourceText !== ''): ?>
+                        <small><?= h($exchangeSourceText) ?></small>
+                    <?php else: ?>
+                        <small>いつでも更新可能です</small>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="hero-preview primary">
+                <div class="hero-preview-header">
+                    <span class="dot dot-primary"></span>
+                    <span class="dot dot-secondary"></span>
+                    <span class="dot dot-tertiary"></span>
+                </div>
+                <div class="hero-preview-body">
+                    <p class="label">最新モデル</p>
+                    <?php if ($selectedModel): ?>
+                        <h3><?= h($selectedModelName) ?></h3>
+                        <?php if ($selectedModelCategory !== ''): ?>
+                            <p class="meta">カテゴリ: <?= h($selectedModelCategory) ?></p>
+                        <?php endif; ?>
+                        <?php if ($selectedModelDescription !== ''): ?>
+                            <p class="description"><?= h($selectedModelDescription) ?></p>
+                        <?php endif; ?>
+                    <?php else: ?>
+                        <h3>モデル未設定</h3>
+                        <p class="description">料金テーブルにモデルを登録すると、ここに概要が表示されます。</p>
+                    <?php endif; ?>
+
+                    <div class="hero-preview-summary">
+                        <div>
+                            <span>合計 (JPY)</span>
+                            <strong><?= formatCurrency($totalJpy, 'JPY') ?></strong>
+                        </div>
+                        <div>
+                            <span>合計 (USD)</span>
+                            <strong><?= formatCurrency($totalUsd, 'USD') ?></strong>
+                        </div>
+                        <div>
+                            <span>1 リクエスト</span>
+                            <strong><?= formatCurrency($perRequestJpy, 'JPY') ?></strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-preview secondary">
+                <p>
+                    JSON ファイルを更新するだけで <span>料金テーブル</span> がアップデート。
+                    <br>管理画面から安全に編集・保存できます。
+                </p>
+            </div>
+        </div>
     </header>
 
     <?php if ($error !== null): ?>
         <div class="error"><?= h($error) ?></div>
     <?php endif; ?>
 
-    <div class="layout">
-        <section class="card">
+    <div class="layout calculator-grid" id="calculator">
+        <section class="card glass form-card">
             <form method="get">
                 <div class="field">
                     <label for="model">モデル</label>
@@ -249,7 +371,7 @@ $hasCost = $totalUsd > 0;
             </form>
         </section>
 
-        <section class="card results">
+        <section class="card glass results">
             <h2>計算結果</h2>
             <?php if ($selectedModel): ?>
                 <p class="small-text">
@@ -324,7 +446,7 @@ $hasCost = $totalUsd > 0;
         </section>
     </div>
 
-    <section class="card model-list">
+    <section class="card glass model-list">
         <h2>モデル別 単価一覧</h2>
         <table>
             <thead>
@@ -377,6 +499,19 @@ $hasCost = $totalUsd > 0;
             </tbody>
         </table>
         <p class="disclaimer small-text">価格や為替レートは参考値です。実際の請求額は OpenAI の利用明細をご確認ください。</p>
+    </section>
+
+    <section class="card glass callout">
+        <div class="callout-content">
+            <div>
+                <h2>料金データを常に最新に</h2>
+                <p>管理画面からモデルや単価を編集すると、計算ツールに即座に反映されます。JSON の直接編集にも対応しているので、運用フローに合わせた柔軟な更新が可能です。</p>
+            </div>
+            <div class="callout-actions">
+                <a class="hero-button primary" href="admin.php">管理画面を開く</a>
+                <a class="hero-button ghost" href="data/pricing.json" download>JSON をダウンロード</a>
+            </div>
+        </div>
     </section>
 
     <footer>
