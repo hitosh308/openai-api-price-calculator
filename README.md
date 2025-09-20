@@ -25,16 +25,16 @@ php -S localhost:8000
 ```json
 {
   "meta": {
-    "usd_to_jpy": 148.9,
-    "last_updated": "2025-02-10",
-    "exchange_rate_source": "手動設定 (2025年2月の平均為替レートを参考)",
-    "notes": "2025年初頭のモデルを例にしたサンプルです。GPT-5 Preview の料金は仮の値なので公式サイトで必ずご確認ください。"
+    "usd_to_jpy": 149.5,
+    "last_updated": "2025-02-15",
+    "exchange_rate_source": "市場想定レート (2025年2月中旬の平均値)",
+    "notes": "OpenAI 公式 API 料金ページ (https://openai.com/ja-JP/api/) を基に 1,000 トークンあたりの単価へ換算したサンプルです。"
   },
   "models": [
     {
-      "id": "gpt-5-preview",
-      "name": "GPT-5 Preview",
-      "category": "次世代",
+      "id": "gpt-4.1",
+      "name": "GPT-4.1",
+      "category": "フラッグシップ",
       "pricing": [
         {
           "id": "prompt_tokens",
@@ -42,7 +42,7 @@ php -S localhost:8000
           "unit": "1,000 トークン",
           "input_unit": "トークン",
           "unit_size": 1000,
-          "price_per_unit_usd": 0.01
+          "price_per_unit_usd": 0.0045
         }
       ]
     }
@@ -57,13 +57,12 @@ php -S localhost:8000
 
 ## サンプルに含まれるモデル
 
-デフォルトの `data/pricing.json` には 2025 年初頭の料金を例にした以下のモデルが含まれています。
+デフォルトの `data/pricing.json` には OpenAI 公式の料金表（2025 年 2 月時点）を基にした以下のモデルが含まれています。
 
-- GPT-5 Preview (仮の料金サンプル)
-- GPT-4.1 / GPT-4.1 mini
-- o1-mini などの推論モデル
-- GPT-4o シリーズ (通常/mini、音声向け)
-- text-embedding-3 シリーズ、GPT-3.5 Turbo などのレガシーモデル
+- GPT-4.1 / GPT-4.1 mini などのフラッグシップモデル
+- GPT-4o / GPT-4o mini 系列（マルチモーダル、音声認識・音声合成向け）
+- o1 / o1-mini などの推論モデル
+- text-embedding-3 シリーズ、GPT-3.5 Turbo などの埋め込み・レガシーモデル
 
 必要に応じて JSON を編集し、実際に利用するモデルや最新価格へ差し替えてください。
 
