@@ -25,16 +25,16 @@ php -S localhost:8000
 ```json
 {
   "meta": {
-    "usd_to_jpy": 155.25,
-    "last_updated": "2024-05-20",
-    "exchange_rate_source": "手動設定 (例: 為替レートAPIを参照して更新してください)",
-    "notes": "OpenAI公式サイト (2024年5月時点) の価格をベースにした例です。実際の価格は変更になる可能性があります。"
+    "usd_to_jpy": 148.9,
+    "last_updated": "2025-02-10",
+    "exchange_rate_source": "手動設定 (2025年2月の平均為替レートを参考)",
+    "notes": "2025年初頭のモデルを例にしたサンプルです。GPT-5 Preview の料金は仮の値なので公式サイトで必ずご確認ください。"
   },
   "models": [
     {
-      "id": "gpt-4o",
-      "name": "GPT-4o",
-      "category": "フラッグシップ",
+      "id": "gpt-5-preview",
+      "name": "GPT-5 Preview",
+      "category": "次世代",
       "pricing": [
         {
           "id": "prompt_tokens",
@@ -42,7 +42,7 @@ php -S localhost:8000
           "unit": "1,000 トークン",
           "input_unit": "トークン",
           "unit_size": 1000,
-          "price_per_unit_usd": 0.005
+          "price_per_unit_usd": 0.01
         }
       ]
     }
@@ -54,6 +54,18 @@ php -S localhost:8000
 - `input_unit` はフォーム入力時に利用者へ表示する単位（例: `トークン`）。
 - `unit_size` は価格 1 単位が何個の `input_unit` に相当するかを表します。
 - `usd_to_jpy` を更新することで為替レートを調整できます。
+
+## サンプルに含まれるモデル
+
+デフォルトの `data/pricing.json` には 2025 年初頭の料金を例にした以下のモデルが含まれています。
+
+- GPT-5 Preview (仮の料金サンプル)
+- GPT-4.1 / GPT-4.1 mini
+- o1-mini などの推論モデル
+- GPT-4o シリーズ (通常/mini、音声向け)
+- text-embedding-3 シリーズ、GPT-3.5 Turbo などのレガシーモデル
+
+必要に応じて JSON を編集し、実際に利用するモデルや最新価格へ差し替えてください。
 
 ## 注意事項
 
