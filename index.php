@@ -176,9 +176,6 @@ $categoryCount = count($categorySet);
 $lastUpdatedText = trim((string) ($meta['last_updated'] ?? ''));
 $exchangeSourceText = trim((string) ($meta['exchange_rate_source'] ?? ''));
 
-$selectedModelName = $selectedModel ? (string) ($selectedModel['name'] ?? $selectedModelId) : '';
-$selectedModelCategory = $selectedModel ? (string) ($selectedModel['category'] ?? '') : '';
-$selectedModelDescription = $selectedModel ? (string) ($selectedModel['description'] ?? '') : '';
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -228,7 +225,6 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
 
             <div class="hero-actions">
                 <a class="hero-button primary" href="#calculator">料金計算を始める</a>
-                <a class="hero-button ghost" href="admin.php">料金設定を編集</a>
             </div>
 
             <div class="hero-insights">
@@ -264,18 +260,10 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
                     <span class="dot dot-tertiary"></span>
                 </div>
                 <div class="hero-preview-body">
-                    <p class="label">最新モデル</p>
-                    <?php if ($selectedModel): ?>
-                        <h3><?= h($selectedModelName) ?></h3>
-                        <?php if ($selectedModelCategory !== ''): ?>
-                            <p class="meta">カテゴリ: <?= h($selectedModelCategory) ?></p>
-                        <?php endif; ?>
-                        <?php if ($selectedModelDescription !== ''): ?>
-                            <p class="description"><?= h($selectedModelDescription) ?></p>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <h3>モデル未設定</h3>
-                        <p class="description">料金テーブルにモデルを登録すると、ここに概要が表示されます。</p>
+                    <p class="label">料金サマリー</p>
+                    <h3>概算結果</h3>
+                    <?php if (!$hasCost): ?>
+                        <p class="description">モデルと利用量を設定すると、概算料金をここに表示します。</p>
                     <?php endif; ?>
 
                     <div class="hero-preview-summary">
@@ -294,12 +282,6 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
                     </div>
                 </div>
             </div>
-            <div class="hero-preview secondary">
-                <p>
-                    JSON ファイルを更新するだけで <span>料金テーブル</span> がアップデート。
-                    <br>管理画面から安全に編集・保存できます。
-                </p>
-            </div>
         </div>
     </header>
 
@@ -312,7 +294,7 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
             <form method="get">
                 <div class="field">
                     <label for="model">モデル</label>
-                    <select name="model" id="model" onchange="this.form.submit()">
+                    <select name="model" id="model">
                         <?php foreach ($models as $model): ?>
                             <?php $id = (string) ($model['id'] ?? ''); ?>
                             <option value="<?= h($id) ?>" <?= $id === $selectedModelId ? 'selected' : '' ?>>
@@ -366,7 +348,7 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
 
                 <div class="buttons">
                     <button type="submit" name="calculate" value="1" class="primary">計算する</button>
-                    <button type="reset" class="secondary" onclick="window.location='<?= h(basename(__FILE__)) ?>'">リセット</button>
+                    <button type="reset" class="secondary" data-reset-url="<?= h(basename(__FILE__)) ?>">リセット</button>
                 </div>
             </form>
         </section>
@@ -376,9 +358,6 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
             <?php if ($selectedModel): ?>
                 <p class="small-text">
                     モデル: <strong><?= h((string) ($selectedModel['name'] ?? $selectedModelId)) ?></strong>
-                    <?php if (!empty($selectedModel['description'])): ?>
-                        — <?= h((string) $selectedModel['description']) ?>
-                    <?php endif; ?>
                 </p>
                 <div class="summary">
                     <div class="badge">
@@ -448,56 +427,58 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
 
     <section class="card glass model-list">
         <h2>モデル別 単価一覧</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>モデル</th>
-                <th>項目</th>
-                <th>単価 (USD)</th>
-                <th>単価 (JPY)</th>
-            </tr>
-            </thead>
-            <tbody>
-            <?php foreach ($models as $model): ?>
-                <?php
-                $isSelected = (($model['id'] ?? '') === $selectedModelId);
-                $pricing = is_array($model['pricing'] ?? null) ? $model['pricing'] : [];
-                $rowspan = max(count($pricing), 1);
-                $rowClass = $isSelected ? 'highlight' : '';
-                ?>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                <tr>
+                    <th>モデル</th>
+                    <th>項目</th>
+                    <th>単価 (USD)</th>
+                    <th>単価 (JPY)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($models as $model): ?>
+                    <?php
+                    $isSelected = (($model['id'] ?? '') === $selectedModelId);
+                    $pricing = is_array($model['pricing'] ?? null) ? $model['pricing'] : [];
+                    $rowspan = max(count($pricing), 1);
+                    $rowClass = $isSelected ? 'highlight' : '';
+                    ?>
 
-                <?php if (empty($pricing)): ?>
-                    <tr class="<?= $rowClass ?>">
-                        <td rowspan="<?= $rowspan ?>">
-                            <?= h((string) ($model['name'] ?? $model['id'])) ?>
-                            <?php if (!empty($model['category'])): ?>
-                                <span class="badge-inline"><?= h((string) $model['category']) ?></span>
-                            <?php endif; ?>
-                        </td>
-                        <td colspan="3">価格情報が設定されていません</td>
-                    </tr>
-                <?php else: ?>
-                    <?php $firstRow = true; ?>
-                    <?php foreach ($pricing as $component): ?>
+                    <?php if (empty($pricing)): ?>
                         <tr class="<?= $rowClass ?>">
-                            <?php if ($firstRow): ?>
-                                <td rowspan="<?= $rowspan ?>">
-                                    <?= h((string) ($model['name'] ?? $model['id'])) ?>
-                                    <?php if (!empty($model['category'])): ?>
-                                        <span class="badge-inline"><?= h((string) $model['category']) ?></span>
-                                    <?php endif; ?>
-                                </td>
-                            <?php endif; ?>
-                            <td><?= h((string) ($component['label'] ?? $component['id'])) ?></td>
-                            <td><?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
-                            <td><?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                            <td rowspan="<?= $rowspan ?>">
+                                <?= h((string) ($model['name'] ?? $model['id'])) ?>
+                                <?php if (!empty($model['category'])): ?>
+                                    <span class="badge-inline"><?= h((string) $model['category']) ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td colspan="3">価格情報が設定されていません</td>
                         </tr>
-                        <?php $firstRow = false; ?>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            </tbody>
-        </table>
+                    <?php else: ?>
+                        <?php $firstRow = true; ?>
+                        <?php foreach ($pricing as $component): ?>
+                            <tr class="<?= $rowClass ?>">
+                                <?php if ($firstRow): ?>
+                                    <td rowspan="<?= $rowspan ?>">
+                                        <?= h((string) ($model['name'] ?? $model['id'])) ?>
+                                        <?php if (!empty($model['category'])): ?>
+                                            <span class="badge-inline"><?= h((string) $model['category']) ?></span>
+                                        <?php endif; ?>
+                                    </td>
+                                <?php endif; ?>
+                                <td><?= h((string) ($component['label'] ?? $component['id'])) ?></td>
+                                <td><?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                                <td><?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                            </tr>
+                            <?php $firstRow = false; ?>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
         <p class="disclaimer small-text">価格や為替レートは参考値です。実際の請求額は OpenAI の利用明細をご確認ください。</p>
     </section>
 
@@ -518,5 +499,84 @@ $selectedModelDescription = $selectedModel ? (string) ($selectedModel['descripti
         <p>© <?= date('Y') ?> OpenAI API 料金計算ツール — JSON を編集して最新の価格を反映できます。</p>
     </footer>
 </main>
+<script>
+(function () {
+    const storageKey = 'calculatorScrollPosition';
+    const form = document.querySelector('.form-card form');
+    const modelSelect = document.getElementById('model');
+    const resetButton = document.querySelector('button[type="reset"][data-reset-url]');
+    const root = document.documentElement;
+
+    function storeScrollPosition() {
+        try {
+            const position = window.scrollY || window.pageYOffset || 0;
+            sessionStorage.setItem(storageKey, String(position));
+        } catch (error) {
+            /* ignore */
+        }
+    }
+
+    function restoreScrollPosition() {
+        try {
+            const stored = sessionStorage.getItem(storageKey);
+            if (stored !== null) {
+                sessionStorage.removeItem(storageKey);
+                const value = parseFloat(stored);
+                if (!Number.isNaN(value)) {
+                    const previousBehavior = root.style.scrollBehavior;
+                    root.style.scrollBehavior = 'auto';
+                    window.scrollTo(0, value);
+                    setTimeout(() => {
+                        if (previousBehavior) {
+                            root.style.scrollBehavior = previousBehavior;
+                        } else {
+                            root.style.removeProperty('scroll-behavior');
+                        }
+                    }, 0);
+                }
+            }
+        } catch (error) {
+            /* ignore */
+        }
+    }
+
+    window.addEventListener('load', restoreScrollPosition, { once: true });
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            restoreScrollPosition();
+        }
+    });
+
+    if (form) {
+        form.addEventListener('submit', storeScrollPosition);
+    }
+
+    if (modelSelect) {
+        modelSelect.addEventListener('change', () => {
+            storeScrollPosition();
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        });
+    }
+
+    if (resetButton) {
+        resetButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            storeScrollPosition();
+            const url = resetButton.getAttribute('data-reset-url');
+            if (url) {
+                window.location.href = url;
+            } else if (form) {
+                form.reset();
+            }
+        });
+    }
+})();
+</script>
 </body>
 </html>
