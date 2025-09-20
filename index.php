@@ -160,22 +160,6 @@ $perRequestUsd = ($requests > 0) ? $totalUsd / $requests : 0.0;
 $perRequestJpy = $perRequestUsd * $usdToJpy;
 $hasCost = $totalUsd > 0;
 
-$modelCount = count($models);
-$pricingItemCount = 0;
-$categorySet = [];
-foreach ($models as $modelInfo) {
-    if (!empty($modelInfo['category'])) {
-        $categorySet[(string) $modelInfo['category']] = true;
-    }
-
-    $items = is_array($modelInfo['pricing'] ?? null) ? $modelInfo['pricing'] : [];
-    $pricingItemCount += count($items);
-}
-$categoryCount = count($categorySet);
-
-$lastUpdatedText = trim((string) ($meta['last_updated'] ?? ''));
-$exchangeSourceText = trim((string) ($meta['exchange_rate_source'] ?? ''));
-
 ?>
 <!DOCTYPE html>
 <html lang="ja">
@@ -199,88 +183,8 @@ $exchangeSourceText = trim((string) ($meta['exchange_rate_source'] ?? ''));
                 JSON を更新すると即座に最新の価格へ反映され、管理画面から安全に編集できます。
             </p>
 
-            <ul class="hero-highlights">
-                <li>
-                    <span class="hero-icon">⚡</span>
-                    <div>
-                        <strong>瞬時に概算を取得</strong>
-                        <span>入力したトークン量に合わせて USD / JPY の料金をその場で試算。</span>
-                    </div>
-                </li>
-                <li>
-                    <span class="hero-icon">🧠</span>
-                    <div>
-                        <strong><?= number_format($modelCount) ?> 種類のモデル</strong>
-                        <span>カテゴリ <?= $categoryCount > 0 ? number_format($categoryCount) : '—' ?> 種類、料金項目 <?= number_format($pricingItemCount) ?> 件をカバー。</span>
-                    </div>
-                </li>
-                <li>
-                    <span class="hero-icon">🔄</span>
-                    <div>
-                        <strong>為替レートも柔軟に設定</strong>
-                        <span>管理画面や JSON で調整でき、最新の相場感に対応。</span>
-                    </div>
-                </li>
-            </ul>
-
             <div class="hero-actions">
                 <a class="hero-button primary" href="#calculator">料金計算を始める</a>
-            </div>
-
-            <div class="hero-insights">
-                <div class="insight">
-                    <span class="label">登録モデル</span>
-                    <strong><?= number_format($modelCount) ?></strong>
-                    <small><?= $categoryCount > 0 ? 'カテゴリ ' . number_format($categoryCount) . ' 種類' : 'カテゴリ情報は未設定' ?></small>
-                </div>
-                <div class="insight">
-                    <span class="label">料金項目</span>
-                    <strong><?= number_format($pricingItemCount) ?></strong>
-                    <small>JSON を編集すると即座に反映</small>
-                </div>
-                <div class="insight">
-                    <span class="label">為替レート</span>
-                    <strong>1 USD = <?= formatCurrency($usdToJpy, 'JPY') ?></strong>
-                    <?php if ($lastUpdatedText !== ''): ?>
-                        <small>設定日 <?= h($lastUpdatedText) ?></small>
-                    <?php elseif ($exchangeSourceText !== ''): ?>
-                        <small><?= h($exchangeSourceText) ?></small>
-                    <?php else: ?>
-                        <small>いつでも更新可能です</small>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </div>
-
-        <div class="hero-visual">
-            <div class="hero-preview primary">
-                <div class="hero-preview-header">
-                    <span class="dot dot-primary"></span>
-                    <span class="dot dot-secondary"></span>
-                    <span class="dot dot-tertiary"></span>
-                </div>
-                <div class="hero-preview-body">
-                    <p class="label">料金サマリー</p>
-                    <h3>概算結果</h3>
-                    <?php if (!$hasCost): ?>
-                        <p class="description">モデルと利用量を設定すると、概算料金をここに表示します。</p>
-                    <?php endif; ?>
-
-                    <div class="hero-preview-summary">
-                        <div>
-                            <span>合計 (JPY)</span>
-                            <strong><?= formatCurrency($totalJpy, 'JPY') ?></strong>
-                        </div>
-                        <div>
-                            <span>合計 (USD)</span>
-                            <strong><?= formatCurrency($totalUsd, 'USD') ?></strong>
-                        </div>
-                        <div>
-                            <span>1 リクエスト</span>
-                            <strong><?= formatCurrency($perRequestJpy, 'JPY') ?></strong>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </header>
