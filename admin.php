@@ -145,7 +145,32 @@ function renderComponentFields(string $modelKey, string $componentKey, array $co
     return (string) ob_get_clean();
 }
 
-function renderModelCard(string $modelKey, array $model, bool $forTemplate = false): string
+function modelDefaultLabel(int $index): string
+{
+    return sprintf('モデル #%d', $index + 1);
+}
+
+function modelDisplayLabel(array $model, int $index): string
+{
+    $id = trim((string) ($model['id'] ?? ''));
+    $name = trim((string) ($model['name'] ?? ''));
+
+    if ($name !== '' && $id !== '') {
+        return sprintf('%s (%s)', $name, $id);
+    }
+
+    if ($name !== '') {
+        return $name;
+    }
+
+    if ($id !== '') {
+        return $id;
+    }
+
+    return modelDefaultLabel($index);
+}
+
+function renderModelCard(string $modelKey, array $model, bool $forTemplate = false, string $displayLabel = '', string $defaultLabel = ''): string
 {
     $idValue = $forTemplate ? '' : (string) ($model['id'] ?? '');
     $nameValue = $forTemplate ? '' : (string) ($model['name'] ?? '');
@@ -165,11 +190,32 @@ function renderModelCard(string $modelKey, array $model, bool $forTemplate = fal
 
     $nextComponentIndex = (string) count($pricing);
 
+    $numericKey = ctype_digit($modelKey) ? (int) $modelKey : null;
+    if ($displayLabel === '') {
+        if ($forTemplate) {
+            $displayLabel = '新しいモデル';
+        } elseif ($numericKey !== null) {
+            $displayLabel = modelDisplayLabel($model, $numericKey);
+        } else {
+            $displayLabel = 'モデル';
+        }
+    }
+
+    if ($defaultLabel === '') {
+        if ($forTemplate) {
+            $defaultLabel = '新しいモデル';
+        } elseif ($numericKey !== null) {
+            $defaultLabel = modelDefaultLabel($numericKey);
+        } else {
+            $defaultLabel = 'モデル';
+        }
+    }
+
     ob_start();
     ?>
-    <article class="model-card" data-model-card data-model-index="<?= h($modelKey) ?>">
+    <article class="model-card" data-model-card data-model-index="<?= h($modelKey) ?>" data-default-label="<?= h($defaultLabel) ?>">
         <div class="model-card-header">
-            <h3>モデル設定</h3>
+            <h3>モデル設定 <span class="model-card-label" data-model-label><?= h($displayLabel) ?></span></h3>
             <button type="button" class="link-button" data-remove-model>モデルを削除</button>
         </div>
         <div class="grid two-column">
@@ -178,7 +224,8 @@ function renderModelCard(string $modelKey, array $model, bool $forTemplate = fal
                 <input type="text"
                        name="models[<?= h($modelKey) ?>][id]"
                        value="<?= h($idValue) ?>"
-                       placeholder="例: gpt-4o">
+                       placeholder="例: gpt-4o"
+                       data-model-id-input>
                 <p class="small-text">API で指定するモデル ID を入力してください。</p>
             </div>
             <div class="field">
@@ -186,7 +233,8 @@ function renderModelCard(string $modelKey, array $model, bool $forTemplate = fal
                 <input type="text"
                        name="models[<?= h($modelKey) ?>][name]"
                        value="<?= h($nameValue) ?>"
-                       placeholder="例: GPT-4o">
+                       placeholder="例: GPT-4o"
+                       data-model-name-input>
             </div>
         </div>
         <div class="grid two-column">
@@ -537,13 +585,43 @@ $modelCount = count($models);
 
         <section class="card">
             <h2>モデルごとの料金設定</h2>
-            <p class="small-text">モデルは自由に追加・削除できます。料金項目が不要になった場合は「削除」をクリックしてください。</p>
+            <p class="small-text">モデルは自由に追加・削除できます。プルダウンで編集するモデルを切り替えてください。</p>
+            <div class="model-selector">
+                <div class="field">
+                    <label for="model_select">編集するモデル</label>
+                    <div class="model-selector-row">
+                        <select id="model_select"
+                                data-model-select
+                                <?= $modelCount === 0 ? 'disabled' : '' ?>>
+                            <option value="" disabled <?= $modelCount === 0 ? 'selected' : '' ?>>モデルを選択</option>
+                            <?php foreach ($models as $index => $model): ?>
+                                <?php
+                                $modelData = is_array($model) ? $model : [];
+                                $optionLabel = modelDisplayLabel($modelData, (int) $index);
+                                ?>
+                                <option value="<?= h((string) $index) ?>" <?= $index === 0 ? 'selected' : '' ?>>
+                                    <?= h($optionLabel) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                        <button type="button" class="secondary" data-add-model>+ モデルを追加</button>
+                    </div>
+                    <p class="small-text">プルダウンからモデルを選んで詳細を編集できます。</p>
+                </div>
+            </div>
+            <p class="small-text model-empty-message" data-model-empty-message <?= $modelCount > 0 ? 'style="display:none;"' : '' ?>>
+                モデルが登録されていません。「モデルを追加」をクリックして作成してください。
+            </p>
             <div class="model-cards" data-models-container data-next-index="<?= h((string) $modelCount) ?>">
                 <?php foreach ($models as $index => $model): ?>
-                    <?= renderModelCard((string) $index, is_array($model) ? $model : []) ?>
+                    <?php
+                    $modelData = is_array($model) ? $model : [];
+                    $displayLabel = modelDisplayLabel($modelData, (int) $index);
+                    $defaultLabel = modelDefaultLabel((int) $index);
+                    ?>
+                    <?= renderModelCard((string) $index, $modelData, false, $displayLabel, $defaultLabel) ?>
                 <?php endforeach; ?>
             </div>
-            <button type="button" class="secondary add-component-button" data-add-model>+ モデルを追加</button>
         </section>
 
         <div class="buttons">
@@ -567,24 +645,193 @@ $modelCount = count($models);
     const componentTemplate = componentTemplateEl ? componentTemplateEl.innerHTML.trim() : '';
 
     const addModelButton = document.querySelector('[data-add-model]');
+    const modelSelect = document.querySelector('[data-model-select]');
+    const emptyMessage = document.querySelector('[data-model-empty-message]');
+
+    function getModelOptions() {
+        if (!modelSelect) {
+            return [];
+        }
+        return Array.from(modelSelect.options).filter((option) => option.value !== '');
+    }
+
+    function computeDefaultLabel(card) {
+        const defaultLabel = card.getAttribute('data-default-label');
+        return defaultLabel && defaultLabel.trim() !== '' ? defaultLabel : '新しいモデル';
+    }
+
+    function computeCardLabel(card) {
+        const nameInput = card.querySelector('[data-model-name-input]');
+        const idInput = card.querySelector('[data-model-id-input]');
+        const name = nameInput ? nameInput.value.trim() : '';
+        const id = idInput ? idInput.value.trim() : '';
+
+        if (name && id) {
+            return `${name} (${id})`;
+        }
+
+        if (name) {
+            return name;
+        }
+
+        if (id) {
+            return id;
+        }
+
+        return computeDefaultLabel(card);
+    }
+
+    function updateCardLabel(card) {
+        const label = computeCardLabel(card);
+        const labelTarget = card.querySelector('[data-model-label]');
+        if (labelTarget) {
+            labelTarget.textContent = label;
+        }
+
+        if (!modelSelect) {
+            return;
+        }
+
+        const index = card.getAttribute('data-model-index');
+        if (!index) {
+            return;
+        }
+
+        const option = Array.from(modelSelect.options).find((opt) => opt.value === index);
+        if (option) {
+            option.textContent = label;
+        }
+    }
+
+    function activateModelByIndex(modelIndex, { updateSelect = true } = {}) {
+        const cards = Array.from(modelsContainer.querySelectorAll('[data-model-card]'));
+        if (cards.length === 0) {
+            if (updateSelect && modelSelect) {
+                modelSelect.value = '';
+            }
+            return null;
+        }
+
+        let targetCard = null;
+        if (modelIndex !== null) {
+            targetCard = cards.find((card) => card.getAttribute('data-model-index') === modelIndex) || null;
+        }
+
+        if (!targetCard) {
+            targetCard = cards[0] || null;
+            modelIndex = targetCard ? targetCard.getAttribute('data-model-index') : null;
+        }
+
+        cards.forEach((card) => {
+            card.classList.toggle('is-active', card === targetCard);
+        });
+
+        if (updateSelect && modelSelect) {
+            modelSelect.value = modelIndex || '';
+        }
+
+        return targetCard;
+    }
+
+    function refreshEmptyState() {
+        const cards = Array.from(modelsContainer.querySelectorAll('[data-model-card]'));
+        const hasModels = cards.length > 0;
+
+        if (emptyMessage) {
+            emptyMessage.style.display = hasModels ? 'none' : '';
+        }
+
+        if (!modelSelect) {
+            activateModelByIndex(null, { updateSelect: false });
+            return;
+        }
+
+        if (!hasModels) {
+            modelSelect.disabled = true;
+            modelSelect.value = '';
+            activateModelByIndex(null, { updateSelect: false });
+            return;
+        }
+
+        modelSelect.disabled = false;
+        const options = getModelOptions();
+        const hasSelected = options.some((option) => option.value === modelSelect.value);
+
+        if (!hasSelected && options.length > 0) {
+            modelSelect.value = options[0].value;
+        }
+
+        activateModelByIndex(modelSelect.value || null, { updateSelect: false });
+    }
+
+    const initialSelection = modelSelect && !modelSelect.disabled ? (modelSelect.value || null) : null;
+    const initialCards = Array.from(modelsContainer.querySelectorAll('[data-model-card]'));
+    initialCards.forEach((card) => updateCardLabel(card));
+    activateModelByIndex(initialSelection, { updateSelect: false });
+    modelsContainer.classList.add('is-interactive');
+    refreshEmptyState();
+
+    if (modelSelect) {
+        modelSelect.addEventListener('change', () => {
+            const value = modelSelect.value || null;
+            activateModelByIndex(value, { updateSelect: false });
+        });
+    }
+
     if (addModelButton) {
         addModelButton.addEventListener('click', () => {
             if (!modelTemplate) {
                 return;
             }
+
             const currentIndex = nextModelIndex;
             const html = modelTemplate.replace(/__INDEX__/g, String(currentIndex));
             nextModelIndex += 1;
             modelsContainer.setAttribute('data-next-index', String(nextModelIndex));
+
             const fragment = document.createElement('template');
             fragment.innerHTML = html.trim();
             const card = fragment.content.firstElementChild;
-            if (card) {
-                card.setAttribute('data-model-index', String(currentIndex));
-                modelsContainer.appendChild(card);
+            if (!card) {
+                return;
+            }
+
+            const existingCount = modelsContainer.querySelectorAll('[data-model-card]').length;
+            card.setAttribute('data-model-index', String(currentIndex));
+            card.setAttribute('data-default-label', `新しいモデル #${existingCount + 1}`);
+            modelsContainer.appendChild(card);
+
+            if (modelSelect) {
+                const option = document.createElement('option');
+                option.value = String(currentIndex);
+                modelSelect.appendChild(option);
+                modelSelect.disabled = false;
+                modelSelect.value = option.value;
+            }
+
+            updateCardLabel(card);
+            refreshEmptyState();
+
+            const idInput = card.querySelector('[data-model-id-input]');
+            if (idInput instanceof HTMLElement) {
+                idInput.focus();
             }
         });
     }
+
+    document.addEventListener('input', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLElement)) {
+            return;
+        }
+
+        if (target.matches('[data-model-name-input], [data-model-id-input]')) {
+            const card = target.closest('[data-model-card]');
+            if (card) {
+                updateCardLabel(card);
+            }
+        }
+    });
 
     document.addEventListener('click', (event) => {
         const target = event.target;
@@ -594,9 +841,22 @@ $modelCount = count($models);
 
         if (target.matches('[data-remove-model]')) {
             const card = target.closest('[data-model-card]');
-            if (card) {
-                card.remove();
+            if (!card) {
+                return;
             }
+
+            const index = card.getAttribute('data-model-index');
+            card.remove();
+
+            if (modelSelect && index) {
+                const option = Array.from(modelSelect.options).find((opt) => opt.value === index);
+                if (option) {
+                    option.remove();
+                }
+            }
+
+            refreshEmptyState();
+            return;
         }
 
         if (target.matches('[data-add-component]')) {
