@@ -3,6 +3,14 @@ declare(strict_types=1);
 
 session_start();
 
+$cacheControl = 'no-store, no-cache, must-revalidate, max-age=0';
+header('Cache-Control: ' . $cacheControl);
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Surrogate-Control: no-store');
+
+$assetVersion = str_replace('.', '', sprintf('%.6F', microtime(true)));
+
 const SESSION_KEY = 'admin_authenticated';
 const DEFAULT_ADMIN_PASSWORD = 'price-edit';
 
@@ -311,8 +319,11 @@ if (!$authenticated) {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="Cache-Control" content="<?= h($cacheControl) ?>">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
         <title>料金設定管理 - ログイン</title>
-        <link rel="stylesheet" href="assets/styles.css">
+        <link rel="stylesheet" href="assets/styles.css?v=<?= h($assetVersion) ?>">
     </head>
     <body class="admin">
     <main class="narrow">
@@ -534,8 +545,11 @@ $modelCount = count($models);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="<?= h($cacheControl) ?>">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>料金設定管理</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="assets/styles.css?v=<?= h($assetVersion) ?>">
 </head>
 <body class="admin">
 <main>

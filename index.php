@@ -1,7 +1,14 @@
 <?php
 declare(strict_types=1);
 
+$cacheControl = 'no-store, no-cache, must-revalidate, max-age=0';
+header('Cache-Control: ' . $cacheControl);
+header('Pragma: no-cache');
+header('Expires: 0');
+header('Surrogate-Control: no-store');
+
 $dataPath = __DIR__ . '/data/pricing.json';
+$assetVersion = str_replace('.', '', sprintf('%.6F', microtime(true)));
 $error = null;
 $meta = [];
 $models = [];
@@ -182,8 +189,11 @@ $exchangeSourceText = trim((string) ($meta['exchange_rate_source'] ?? ''));
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="<?= h($cacheControl) ?>">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>OpenAI API 料金計算ツール</title>
-    <link rel="stylesheet" href="assets/styles.css">
+    <link rel="stylesheet" href="assets/styles.css?v=<?= h($assetVersion) ?>">
 </head>
 <body class="calculator">
 <div class="page-gradient"></div>
