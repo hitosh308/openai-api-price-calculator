@@ -193,9 +193,6 @@ $hasCost = $totalUsd > 0;
                 JSON を更新すると即座に最新の価格へ反映され、管理画面から安全に編集できます。
             </p>
 
-            <div class="hero-actions">
-                <a class="hero-button primary" href="#calculator">料金計算を始める</a>
-            </div>
         </div>
     </header>
 
@@ -231,6 +228,7 @@ $hasCost = $totalUsd > 0;
                 <?php if ($selectedModel): ?>
                     <div class="field">
                         <h3>利用量 (1 リクエストあたり)</h3>
+                        <?php $suppressedHelpIds = ['prompt_tokens', 'cached_prompt_tokens', 'completion_tokens']; ?>
                         <?php foreach ($selectedModel['pricing'] as $component): ?>
                             <?php
                             $componentId = (string) ($component['id'] ?? '');
@@ -251,7 +249,7 @@ $hasCost = $totalUsd > 0;
                                            placeholder="0">
                                     <span><?= h((string) ($component['input_unit'] ?? ($component['unit'] ?? '単位'))) ?></span>
                                 </div>
-                                <?php if (!empty($component['help'])): ?>
+                                <?php if (!empty($component['help']) && !in_array($componentId, $suppressedHelpIds, true)): ?>
                                     <p class="note"><?= h((string) $component['help']) ?></p>
                                 <?php endif; ?>
                                 <p class="note small-text">単価: <?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?>（約 <?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?>）</p>
@@ -288,38 +286,6 @@ $hasCost = $totalUsd > 0;
                     </div>
                 </div>
 
-                <table>
-                    <thead>
-                    <tr>
-                        <th>項目</th>
-                        <th>利用量</th>
-                        <th>金額 (USD)</th>
-                        <th>金額 (JPY)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <?php foreach ($componentResults as $component): ?>
-                        <tr>
-                            <td><?= h($component['label']) ?></td>
-                            <td>
-                                <?= formatNumber($component['usage_per_request']) ?> <?= h($component['input_unit']) ?>
-                                × <?= formatNumber($component['requests']) ?> 回
-                                <?php if ($component['requests'] > 1): ?>
-                                    = <?= formatNumber($component['total_usage']) ?> <?= h($component['input_unit']) ?>
-                                <?php endif; ?>
-                            </td>
-                            <td><?= formatCurrency($component['cost_usd'], 'USD') ?></td>
-                            <td><?= formatCurrency($component['cost_jpy'], 'JPY') ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                    </tbody>
-                </table>
-
-                <div class="total">
-                    <span>合計</span>
-                    <span><?= formatCurrency($totalJpy, 'JPY') ?>（<?= formatCurrency($totalUsd, 'USD') ?>）</span>
-                </div>
-
                 <?php if (!$hasCost): ?>
                     <div class="alert">利用量を入力すると料金を試算できます。初期表示では 0 円です。</div>
                 <?php endif; ?>
@@ -338,63 +304,6 @@ $hasCost = $totalUsd > 0;
             </div>
         </section>
     </div>
-
-    <section class="card glass model-list">
-        <h2>モデル別 単価一覧</h2>
-        <div class="table-scroll">
-            <table>
-                <thead>
-                <tr>
-                    <th>モデル</th>
-                    <th>項目</th>
-                    <th>単価 (USD)</th>
-                    <th>単価 (JPY)</th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($models as $model): ?>
-                    <?php
-                    $isSelected = (($model['id'] ?? '') === $selectedModelId);
-                    $pricing = is_array($model['pricing'] ?? null) ? $model['pricing'] : [];
-                    $rowspan = max(count($pricing), 1);
-                    $rowClass = $isSelected ? 'highlight' : '';
-                    ?>
-
-                    <?php if (empty($pricing)): ?>
-                        <tr class="<?= $rowClass ?>">
-                            <td rowspan="<?= $rowspan ?>">
-                                <?= h((string) ($model['name'] ?? $model['id'])) ?>
-                                <?php if (!empty($model['category'])): ?>
-                                    <span class="badge-inline"><?= h((string) $model['category']) ?></span>
-                                <?php endif; ?>
-                            </td>
-                            <td colspan="3">価格情報が設定されていません</td>
-                        </tr>
-                    <?php else: ?>
-                        <?php $firstRow = true; ?>
-                        <?php foreach ($pricing as $component): ?>
-                            <tr class="<?= $rowClass ?>">
-                                <?php if ($firstRow): ?>
-                                    <td rowspan="<?= $rowspan ?>">
-                                        <?= h((string) ($model['name'] ?? $model['id'])) ?>
-                                        <?php if (!empty($model['category'])): ?>
-                                            <span class="badge-inline"><?= h((string) $model['category']) ?></span>
-                                        <?php endif; ?>
-                                    </td>
-                                <?php endif; ?>
-                                <td><?= h((string) ($component['label'] ?? $component['id'])) ?></td>
-                                <td><?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
-                                <td><?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
-                            </tr>
-                            <?php $firstRow = false; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-                <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-        <p class="disclaimer small-text">価格や為替レートは参考値です。実際の請求額は OpenAI の利用明細をご確認ください。</p>
-    </section>
 
     <section class="card glass callout">
         <div class="callout-content">
