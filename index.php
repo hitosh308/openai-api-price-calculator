@@ -334,20 +334,42 @@ $hasCost = $totalUsd > 0;
             </thead>
             <tbody>
             <?php foreach ($models as $model): ?>
-                <?php $isSelected = (($model['id'] ?? '') === $selectedModelId); ?>
-                <?php foreach (($model['pricing'] ?? []) as $component): ?>
-                    <tr class="<?= $isSelected ? 'highlight' : '' ?>">
-                        <td>
+                <?php
+                $isSelected = (($model['id'] ?? '') === $selectedModelId);
+                $pricing = is_array($model['pricing'] ?? null) ? $model['pricing'] : [];
+                $rowspan = max(count($pricing), 1);
+                $rowClass = $isSelected ? 'highlight' : '';
+                ?>
+
+                <?php if (empty($pricing)): ?>
+                    <tr class="<?= $rowClass ?>">
+                        <td rowspan="<?= $rowspan ?>">
                             <?= h((string) ($model['name'] ?? $model['id'])) ?>
                             <?php if (!empty($model['category'])): ?>
                                 <span class="badge-inline"><?= h((string) $model['category']) ?></span>
                             <?php endif; ?>
                         </td>
-                        <td><?= h((string) ($component['label'] ?? $component['id'])) ?></td>
-                        <td><?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
-                        <td><?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                        <td colspan="3">価格情報が設定されていません</td>
                     </tr>
-                <?php endforeach; ?>
+                <?php else: ?>
+                    <?php $firstRow = true; ?>
+                    <?php foreach ($pricing as $component): ?>
+                        <tr class="<?= $rowClass ?>">
+                            <?php if ($firstRow): ?>
+                                <td rowspan="<?= $rowspan ?>">
+                                    <?= h((string) ($model['name'] ?? $model['id'])) ?>
+                                    <?php if (!empty($model['category'])): ?>
+                                        <span class="badge-inline"><?= h((string) $model['category']) ?></span>
+                                    <?php endif; ?>
+                                </td>
+                            <?php endif; ?>
+                            <td><?= h((string) ($component['label'] ?? $component['id'])) ?></td>
+                            <td><?= formatCurrency((float) ($component['price_per_unit_usd'] ?? 0.0), 'USD') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                            <td><?= formatCurrency(((float) ($component['price_per_unit_usd'] ?? 0.0)) * $usdToJpy, 'JPY') ?> / <?= h((string) ($component['unit'] ?? '')) ?></td>
+                        </tr>
+                        <?php $firstRow = false; ?>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             <?php endforeach; ?>
             </tbody>
         </table>
