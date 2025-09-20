@@ -698,15 +698,21 @@ a:hover {
   margin-bottom: 1.3rem;
 }
 
-.model-list table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.95rem;
+.model-list .table-scroll {
   border-radius: 18px;
-  overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.22);
   background: rgba(8, 20, 40, 0.55);
   backdrop-filter: blur(18px);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.model-list table {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: 0.95rem;
 }
 
 .model-list th,
@@ -1104,6 +1110,21 @@ footer::before {
   .results table th,
   .results table td {
     padding: 0.75rem;
+  }
+
+  .model-list .table-scroll {
+    margin: 0 -0.5rem;
+    border-radius: 14px;
+  }
+
+  .model-list table {
+    min-width: 560px;
+    font-size: 0.9rem;
+  }
+
+  .model-list th,
+  .model-list td {
+    padding: 0.6rem 0.75rem;
   }
 }
 
