@@ -97,7 +97,7 @@ main {
 
 .hero {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
+  grid-template-columns: minmax(0, 1fr);
   gap: 3rem;
   align-items: center;
   margin-bottom: 3.5rem;
