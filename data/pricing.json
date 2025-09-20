@@ -1,0 +1,174 @@
+{
+  "meta": {
+    "usd_to_jpy": 155.25,
+    "last_updated": "2024-05-20",
+    "exchange_rate_source": "手動設定 (例: 為替レートAPIを参照して更新してください)",
+    "notes": "OpenAI公式サイト (2024年5月時点) の価格をベースにした例です。実際の価格は変更になる可能性があります。"
+  },
+  "models": [
+    {
+      "id": "gpt-4o",
+      "name": "GPT-4o",
+      "category": "フラッグシップ",
+      "description": "最新のマルチモーダルフラッグシップモデル。",
+      "pricing": [
+        {
+          "id": "prompt_tokens",
+          "label": "プロンプト (入力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.005,
+          "help": "チャットなどで送信するトークンの合計。"
+        },
+        {
+          "id": "completion_tokens",
+          "label": "レスポンス (出力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.015,
+          "help": "モデルから返ってくるトークンの合計。"
+        },
+        {
+          "id": "cached_prompt_tokens",
+          "label": "キャッシュ済みプロンプト",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.00125,
+          "help": "リクエスト内で再利用されるトークン (prompt caching)。必要な場合のみ入力してください。",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "gpt-4o-mini",
+      "name": "GPT-4o mini",
+      "category": "軽量",
+      "description": "コストと品質のバランスが良い軽量モデル。",
+      "pricing": [
+        {
+          "id": "prompt_tokens",
+          "label": "プロンプト (入力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.00015,
+          "help": "チャットなどで送信するトークンの合計。"
+        },
+        {
+          "id": "completion_tokens",
+          "label": "レスポンス (出力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.0006,
+          "help": "モデルから返ってくるトークンの合計。"
+        },
+        {
+          "id": "cached_prompt_tokens",
+          "label": "キャッシュ済みプロンプト",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.0000375,
+          "help": "リクエスト内で再利用されるトークン (prompt caching)。必要な場合のみ入力してください。",
+          "optional": true
+        }
+      ]
+    },
+    {
+      "id": "gpt-3.5-turbo",
+      "name": "GPT-3.5 Turbo",
+      "category": "レガシー",
+      "description": "既存のアプリで広く利用されているモデル。",
+      "pricing": [
+        {
+          "id": "prompt_tokens",
+          "label": "プロンプト (入力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.0005
+        },
+        {
+          "id": "completion_tokens",
+          "label": "レスポンス (出力トークン)",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.0015
+        }
+      ]
+    },
+    {
+      "id": "text-embedding-3-large",
+      "name": "text-embedding-3-large",
+      "category": "埋め込み",
+      "description": "高精度な文章埋め込みモデル。",
+      "pricing": [
+        {
+          "id": "embedding_tokens",
+          "label": "埋め込みトークン",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.00013,
+          "help": "埋め込み対象テキストの総トークン数。"
+        }
+      ]
+    },
+    {
+      "id": "text-embedding-3-small",
+      "name": "text-embedding-3-small",
+      "category": "埋め込み",
+      "description": "軽量で高速な埋め込みモデル。",
+      "pricing": [
+        {
+          "id": "embedding_tokens",
+          "label": "埋め込みトークン",
+          "unit": "1,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000,
+          "price_per_unit_usd": 0.00002,
+          "help": "埋め込み対象テキストの総トークン数。"
+        }
+      ]
+    },
+    {
+      "id": "gpt-4o-mini-transcribe",
+      "name": "GPT-4o mini (Transcribe)",
+      "category": "音声認識",
+      "description": "音声をテキストに変換するモデル。",
+      "pricing": [
+        {
+          "id": "audio_minutes",
+          "label": "音声分数",
+          "unit": "1 分",
+          "input_unit": "分",
+          "unit_size": 1,
+          "price_per_unit_usd": 0.006,
+          "help": "処理する音声の総分数。"
+        }
+      ]
+    },
+    {
+      "id": "gpt-4o-mini-tts",
+      "name": "GPT-4o mini (Text-to-Speech)",
+      "category": "音声合成",
+      "description": "テキストを自然な音声に変換。",
+      "pricing": [
+        {
+          "id": "speech_characters",
+          "label": "生成文字数",
+          "unit": "1 文字",
+          "input_unit": "文字",
+          "unit_size": 1,
+          "price_per_unit_usd": 0.000015,
+          "help": "音声化するテキストの総文字数。"
+        }
+      ]
+    }
+  ]
+}
