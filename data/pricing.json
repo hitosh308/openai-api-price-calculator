@@ -1,326 +1,313 @@
 {
   "meta": {
     "usd_to_jpy": 149.50,
-    "last_updated": "2025-02-15",
-    "exchange_rate_source": "市場想定レート (2025年2月中旬の平均値)",
-    "notes": "OpenAI 公式 API 料金ページ (https://openai.com/ja-JP/api/) を基に 1,000 トークンあたりの単価へ換算したサンプルです。実際の請求額は公式明細をご確認ください。"
+    "last_updated": "2025-03-01",
+    "exchange_rate_source": "市場想定レート (2025年3月上旬の平均値)",
+    "notes": "2025年3月時点で公開された最新のモデル別料金テーブルを基に 1,000,000 トークンあたりの単価へ換算しています。実際の請求額は公式明細をご確認ください。"
   },
   "models": [
     {
-      "id": "gpt-4.1",
-      "name": "GPT-4.1",
+      "id": "gpt-5",
+      "name": "GPT-5",
       "category": "フラッグシップ",
-      "description": "最新のマルチモーダル フラッグシップモデル。テキスト・画像・音声まで幅広く対応します。",
+      "description": "OpenAI の最新フラッグシップ マルチモーダルモデル。テキストや視覚タスクで最高水準の性能を発揮します。",
       "pricing": [
         {
           "id": "prompt_tokens",
           "label": "プロンプト (入力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0045,
-          "help": "チャットや Responses API に送信する入力トークンの合計数です。"
+          "unit_size": 1000000,
+          "price_per_unit_usd": 1.25,
+          "help": "チャットや API に送信する入力トークンの合計数。"
+        },
+        {
+          "id": "cached_prompt_tokens",
+          "label": "キャッシュ済み入力トークン",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.31,
+          "help": "Prompt caching で再利用される入力トークン数。",
+          "optional": true
         },
         {
           "id": "completion_tokens",
           "label": "レスポンス (出力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0135,
-          "help": "モデルが生成する出力トークンの合計数です。"
-        },
-        {
-          "id": "cached_prompt_tokens",
-          "label": "キャッシュ済みプロンプト",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0011,
-          "help": "Prompt caching で再利用される入力トークン数。必要な場合のみ入力してください。",
-          "optional": true
-        },
-        {
-          "id": "audio_minutes",
-          "label": "音声入力",
-          "unit": "1 分",
-          "input_unit": "分",
-          "unit_size": 1,
-          "price_per_unit_usd": 0.009,
-          "help": "音声やマルチモーダル入力として処理する合計分数。",
-          "optional": true
+          "unit_size": 1000000,
+          "price_per_unit_usd": 10.0,
+          "help": "モデルが生成する出力トークンの合計数。"
         }
       ]
     },
     {
-      "id": "gpt-4.1-mini",
-      "name": "GPT-4.1 mini",
+      "id": "gpt-5-mini",
+      "name": "GPT-5 mini",
       "category": "フラッグシップ (軽量)",
-      "description": "コスト効率に優れた軽量版 GPT-4.1。マルチモーダル用途にも最適。",
+      "description": "GPT-5 の軽量・低コスト版。レイテンシと費用対効果を重視した用途に適しています。",
       "pricing": [
         {
           "id": "prompt_tokens",
           "label": "プロンプト (入力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0003,
-          "help": "チャットなどで送信するトークンの合計。"
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.25,
+          "help": "チャットや API に送信する入力トークンの合計数。"
+        },
+        {
+          "id": "cached_prompt_tokens",
+          "label": "キャッシュ済み入力トークン",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.06,
+          "help": "Prompt caching で再利用される入力トークン数。",
+          "optional": true
         },
         {
           "id": "completion_tokens",
           "label": "レスポンス (出力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0012,
-          "help": "モデルから返ってくるトークンの合計。"
+          "unit_size": 1000000,
+          "price_per_unit_usd": 2.0,
+          "help": "モデルが生成する出力トークンの合計数。"
+        }
+      ]
+    },
+    {
+      "id": "gpt-5-nano",
+      "name": "GPT-5 nano",
+      "category": "超軽量",
+      "description": "コストと省資源性を最優先した超軽量モデル。大規模バッチや補助用途に最適です。",
+      "pricing": [
+        {
+          "id": "prompt_tokens",
+          "label": "プロンプト (入力トークン)",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.05,
+          "help": "チャットや API に送信する入力トークンの合計数。"
         },
         {
           "id": "cached_prompt_tokens",
-          "label": "キャッシュ済みプロンプト",
-          "unit": "1,000 トークン",
+          "label": "キャッシュ済み入力トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.00006,
-          "help": "Prompt caching によって再利用される入力トークン。",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.01,
+          "help": "Prompt caching で再利用される入力トークン数。",
           "optional": true
         },
         {
-          "id": "vision_input_megapixels",
-          "label": "画像入力",
-          "unit": "1 メガピクセル",
-          "input_unit": "メガピクセル",
-          "unit_size": 1,
-          "price_per_unit_usd": 0.0015,
-          "help": "画像解析を行う際の総メガピクセル数。",
-          "optional": true
+          "id": "completion_tokens",
+          "label": "レスポンス (出力トークン)",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.40,
+          "help": "モデルが生成する出力トークンの合計数。"
         }
       ]
     },
     {
       "id": "gpt-4o",
       "name": "GPT-4o",
-      "category": "フラッグシップ",
-      "description": "スピードと品質を両立したマルチモーダル フラッグシップモデル。",
+      "category": "フラッグシップ (GPT-4 系)",
+      "description": "GPT-4 系列のマルチモーダルモデル。安定した品質と互換性を重視する場合に。",
       "pricing": [
         {
           "id": "prompt_tokens",
           "label": "プロンプト (入力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.005,
+          "unit_size": 1000000,
+          "price_per_unit_usd": 2.50,
           "help": "チャットや API に送信する入力トークンの合計数。"
         },
         {
-          "id": "completion_tokens",
-          "label": "レスポンス (出力トークン)",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.015,
-          "help": "モデルが生成する出力トークンの合計数。"
-        },
-        {
           "id": "cached_prompt_tokens",
-          "label": "キャッシュ済みプロンプト",
-          "unit": "1,000 トークン",
+          "label": "キャッシュ済み入力トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.00125,
+          "unit_size": 1000000,
+          "price_per_unit_usd": 1.25,
           "help": "Prompt caching で再利用される入力トークン数。",
           "optional": true
         },
         {
-          "id": "audio_minutes",
-          "label": "音声入力",
-          "unit": "1 分",
-          "input_unit": "分",
-          "unit_size": 1,
-          "price_per_unit_usd": 0.006,
-          "help": "リアルタイム API などで音声を直接送信する場合の処理時間。",
-          "optional": true
+          "id": "completion_tokens",
+          "label": "レスポンス (出力トークン)",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 10.0,
+          "help": "モデルが生成する出力トークンの合計数。"
         }
       ]
     },
     {
       "id": "gpt-4o-mini",
       "name": "GPT-4o mini",
-      "category": "マルチモーダル (軽量)",
-      "description": "価格と性能のバランスに優れた軽量マルチモーダルモデル。",
+      "category": "フラッグシップ (軽量)",
+      "description": "GPT-4o の廉価版。品質とコストのバランスに優れたマルチモーダルモデルです。",
       "pricing": [
         {
           "id": "prompt_tokens",
           "label": "プロンプト (入力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.00015,
-          "help": "チャットなどで送信するトークンの合計。"
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.15,
+          "help": "チャットや API に送信する入力トークンの合計数。"
+        },
+        {
+          "id": "cached_prompt_tokens",
+          "label": "キャッシュ済み入力トークン",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.075,
+          "help": "Prompt caching で再利用される入力トークン数。",
+          "optional": true
         },
         {
           "id": "completion_tokens",
           "label": "レスポンス (出力トークン)",
-          "unit": "1,000 トークン",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0006,
-          "help": "モデルから返ってくるトークンの合計。"
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.60,
+          "help": "モデルが生成する出力トークンの合計数。"
+        }
+      ]
+    },
+    {
+      "id": "o1-pro",
+      "name": "o1 / o1-Pro",
+      "category": "推論",
+      "description": "高度な推論ステップと長期的な思考プロセスに特化したモデル。高コストながら精緻な推論が可能です。",
+      "pricing": [
+        {
+          "id": "reasoning_prompt_tokens",
+          "label": "推論プロンプト",
+          "unit": "1,000,000 トークン",
+          "input_unit": "トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 150.0,
+          "help": "推論タスクで送信する入力トークンの合計数。"
         },
         {
-          "id": "cached_prompt_tokens",
-          "label": "キャッシュ済みプロンプト",
-          "unit": "1,000 トークン",
+          "id": "reasoning_completion_tokens",
+          "label": "推論レスポンス",
+          "unit": "1,000,000 トークン",
           "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0000375,
-          "help": "Prompt caching で再利用されるトークン。",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 600.0,
+          "help": "推論結果として返る出力トークンの合計数。"
+        }
+      ]
+    },
+    {
+      "id": "gpt-image-1",
+      "name": "gpt-image-1",
+      "category": "画像生成",
+      "description": "テキストや画像を入力に受け取り、高精細な画像を生成するモデル。",
+      "pricing": [
+        {
+          "id": "text_prompts",
+          "label": "テキスト入力 (プロンプト)",
+          "unit": "1 リクエスト",
+          "input_unit": "リクエスト",
+          "unit_size": 1,
+          "price_per_unit_usd": 5.0,
+          "help": "テキストのみで画像を生成するリクエスト数。"
+        },
+        {
+          "id": "image_outputs",
+          "label": "画像生成 (出力)",
+          "unit": "1 画像",
+          "input_unit": "画像",
+          "unit_size": 1,
+          "price_per_unit_usd": 40.0,
+          "help": "生成する画像枚数。解像度や品質で追加課金が発生する場合があります。"
+        },
+        {
+          "id": "image_input_tokens",
+          "label": "画像入力トークン",
+          "unit": "1,000,000 画像トークン",
+          "input_unit": "画像トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 10.0,
+          "help": "画像を入力として与える場合のトークン数。",
           "optional": true
         }
       ]
     },
     {
-      "id": "gpt-4o-mini-transcribe",
-      "name": "GPT-4o mini (Transcribe)",
-      "category": "音声認識",
-      "description": "高精度な音声テキスト化モデル。",
+      "id": "dall-e",
+      "name": "DALL·E 系画像生成 (参考)",
+      "category": "画像生成 (参考)",
+      "description": "DALL·E シリーズの概算料金。品質やサイズに応じて単価が 0.01〜0.17 USD/画像 の範囲で変動します。",
       "pricing": [
         {
-          "id": "audio_minutes",
-          "label": "音声分数",
-          "unit": "1 分",
-          "input_unit": "分",
+          "id": "image_outputs_low",
+          "label": "画像生成 (基本)",
+          "unit": "1 画像",
+          "input_unit": "画像",
           "unit_size": 1,
-          "price_per_unit_usd": 0.006,
-          "help": "処理する音声の合計分数。"
-        }
-      ]
-    },
-    {
-      "id": "gpt-4o-mini-tts",
-      "name": "GPT-4o mini (Text-to-Speech)",
-      "category": "音声合成",
-      "description": "テキストを自然な音声に変換するモデル。",
-      "pricing": [
+          "price_per_unit_usd": 0.01,
+          "help": "低〜中品質の画像生成を想定した単価です。"
+        },
         {
-          "id": "speech_characters",
-          "label": "生成文字数",
-          "unit": "1 文字",
-          "input_unit": "文字",
+          "id": "image_outputs_high_addon",
+          "label": "高品質追加料金",
+          "unit": "1 画像",
+          "input_unit": "画像",
           "unit_size": 1,
-          "price_per_unit_usd": 0.000015,
-          "help": "音声化するテキストの総文字数。"
+          "price_per_unit_usd": 0.16,
+          "help": "高品質や大きな解像度の場合に上乗せされる追加料金。高品質 1 枚あたり 1 を入力してください。",
+          "optional": true
         }
       ]
     },
     {
-      "id": "o1",
-      "name": "o1",
-      "category": "推論",
-      "description": "複雑な推論や長期的な思考が必要なタスク向けのモデル。",
+      "id": "gpt-realtime",
+      "name": "gpt-realtime",
+      "category": "リアルタイム / 音声",
+      "description": "音声対話やリアルタイム応答に特化したストリーミング対応モデル。",
       "pricing": [
         {
-          "id": "reasoning_prompt_tokens",
-          "label": "推論プロンプト",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.015,
-          "help": "推論ステップに利用する入力トークン数。"
+          "id": "audio_input_tokens",
+          "label": "音声入力トークン",
+          "unit": "1,000,000 音声トークン",
+          "input_unit": "音声トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 32.0,
+          "help": "リアルタイム音声やストリーミングで送信する入力トークン。"
         },
         {
-          "id": "reasoning_completion_tokens",
-          "label": "推論レスポンス",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.06,
-          "help": "推論結果として返る出力トークン数。"
-        }
-      ]
-    },
-    {
-      "id": "o1-mini",
-      "name": "o1-mini",
-      "category": "推論 (軽量)",
-      "description": "推論タスク向けのコスト効率に優れたバージョン。",
-      "pricing": [
-        {
-          "id": "reasoning_prompt_tokens",
-          "label": "推論プロンプト",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.003,
-          "help": "推論のために送信する入力トークン数。"
+          "id": "cached_audio_prompt",
+          "label": "キャッシュ済み音声入力",
+          "unit": "1,000,000 音声トークン",
+          "input_unit": "音声トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 0.40,
+          "help": "Prompt caching で再利用される音声入力トークン数。",
+          "optional": true
         },
         {
-          "id": "reasoning_completion_tokens",
-          "label": "推論レスポンス",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.012,
-          "help": "推論結果として返る出力トークン数。"
-        }
-      ]
-    },
-    {
-      "id": "text-embedding-3-large",
-      "name": "text-embedding-3-large",
-      "category": "埋め込み",
-      "description": "最高精度の文章埋め込みモデル (3072 次元)。",
-      "pricing": [
-        {
-          "id": "embedding_tokens",
-          "label": "埋め込みトークン",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.13,
-          "help": "埋め込みを計算するテキストの総トークン数。"
-        }
-      ]
-    },
-    {
-      "id": "text-embedding-3-small",
-      "name": "text-embedding-3-small",
-      "category": "埋め込み",
-      "description": "コスト重視の軽量埋め込みモデル (1536 次元)。",
-      "pricing": [
-        {
-          "id": "embedding_tokens",
-          "label": "埋め込みトークン",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.00002,
-          "help": "埋め込み対象テキストの総トークン数。"
-        }
-      ]
-    },
-    {
-      "id": "gpt-3.5-turbo",
-      "name": "GPT-3.5 Turbo",
-      "category": "レガシー",
-      "description": "既存システムで広く利用されているテキストモデル。",
-      "pricing": [
-        {
-          "id": "prompt_tokens",
-          "label": "プロンプト (入力トークン)",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0005
-        },
-        {
-          "id": "completion_tokens",
-          "label": "レスポンス (出力トークン)",
-          "unit": "1,000 トークン",
-          "input_unit": "トークン",
-          "unit_size": 1000,
-          "price_per_unit_usd": 0.0015
+          "id": "audio_output_tokens",
+          "label": "音声出力トークン",
+          "unit": "1,000,000 音声トークン",
+          "input_unit": "音声トークン",
+          "unit_size": 1000000,
+          "price_per_unit_usd": 64.0,
+          "help": "モデルからストリーミングされる音声出力トークン。"
         }
       ]
     }
